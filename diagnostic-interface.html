@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Diagnostic Interface MINDLY</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #1a1a1a;
+            color: #00ff00;
+            margin: 0;
+            padding: 20px;
+            font-size: 14px;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #444;
+        }
+        .status {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .status.ok { background: #1a4a1a; border-left: 4px solid #00ff00; }
+        .status.warning { background: #4a4a1a; border-left: 4px solid #ffff00; color: #ffff00; }
+        .status.error { background: #4a1a1a; border-left: 4px solid #ff0000; color: #ff0000; }
+        .btn {
+            background: #333;
+            color: #fff;
+            border: 1px solid #555;
+            padding: 10px 20px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        .btn:hover { background: #444; }
+        .logs {
+            background: #000;
+            color: #0f0;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔧 Diagnostic Interface MINDLY</h1>
+        <p>Outil de diagnostic pour identifier les problèmes d'affichage</p>
+        
+        <div id="diagnosis">
+            <div class="status" id="status">⏳ Diagnostic en cours...</div>
+        </div>
+        
+        <div>
+            <button class="btn" onclick="runDiagnosis()">🔍 Lancer Diagnostic</button>
+            <button class="btn" onclick="fixInterface()">🔧 Corriger Interface</button>
+            <button class="btn" onclick="openMindly()">🚀 Ouvrir MINDLY</button>
+            <button class="btn" onclick="clearLogs()">📑 Effacer Logs</button>
+        </div>
+        
+        <div class="logs" id="logs"></div>
+    </div>
+
+    <script>
+        let logData = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logMessage = `[${timestamp}] ${message}`;
+            logData.push(logMessage);
+            
+            const logsDiv = document.getElementById('logs');
+            logsDiv.textContent = logData.join('\n');
+            logsDiv.scrollTop = logsDiv.scrollHeight;
+            
+            console.log(message);
+        }
+
+        function updateStatus(message, type = 'ok') {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = `status ${type}`;
+        }
+
+        async function runDiagnosis() {
+            log('🔍 Début du diagnostic interface MINDLY', 'info');
+            updateStatus('🔍 Diagnostic en cours...', 'warning');
+            
+            const checks = [
+                { name: 'LocalStorage disponible', test: () => typeof Storage !== 'undefined' },
+                { name: 'Mode développeur actif', test: () => localStorage.getItem('mindly-dev-mode') === 'true' },
+                { name: 'Données utilisateur présentes', test: () => localStorage.getItem('mindly-user') !== null },
+                { name: 'Thème configuré', test: () => localStorage.getItem('mindly-theme') !== null },
+                { name: 'Serveur local accessible', test: () => testServer() }
+            ];
+            
+            let passed = 0;
+            let total = checks.length;
+            
+            for (const check of checks) {
+                try {
+                    const result = await check.test();
+                    if (result) {
+                        log(`✅ ${check.name}`, 'ok');
+                        passed++;
+                    } else {
+                        log(`❌ ${check.name}`, 'error');
+                    }
+                } catch (error) {
+                    log(`❌ ${check.name} - Erreur: ${error.message}`, 'error');
+                }
+            }
+            
+            // Diagnostic spécifique à l'interface
+            log('\n🔍 Diagnostic spécifique interface:', 'info');
+            
+            if (window.location.href.includes('mindly-clean.html')) {
+                log('📄 Page MINDLY détectée', 'ok');
+            } else {
+                log('📄 Pas sur la page MINDLY principale', 'warning');
+            }
+            
+            // Vérification CSS
+            if (document.styleSheets.length > 0) {
+                log(`🎨 ${document.styleSheets.length} feuilles de style chargées`, 'ok');
+            } else {
+                log('🎨 Aucune feuille de style détectée', 'error');
+            }
+            
+            const score = Math.round((passed / total) * 100);
+            
+            if (score >= 80) {
+                updateStatus(`✅ Diagnostic OK - Score: ${score}%`, 'ok');
+                log(`\n🎉 Diagnostic terminé - Score: ${score}% - Interface probablement fonctionnelle`, 'ok');
+            } else if (score >= 60) {
+                updateStatus(`⚠️ Problèmes détectés - Score: ${score}%`, 'warning');
+                log(`\n⚠️ Diagnostic terminé - Score: ${score}% - Quelques problèmes détectés`, 'warning');
+            } else {
+                updateStatus(`❌ Problèmes critiques - Score: ${score}%`, 'error');
+                log(`\n❌ Diagnostic terminé - Score: ${score}% - Problèmes critiques détectés`, 'error');
+            }
+        }
+
+        async function testServer() {
+            try {
+                const response = await fetch('http://localhost:3000', { method: 'GET', timeout: 2000 });
+                return response.ok;
+            } catch {
+                return false;
+            }
+        }
+
+        function fixInterface() {
+            log('🔧 Tentative de correction interface...', 'info');
+            
+            // Forcer le mode développeur
+            localStorage.setItem('mindly-dev-mode', 'true');
+            log('✅ Mode développeur activé', 'ok');
+            
+            // Nettoyer les données corrompues
+            const keysToClean = Object.keys(localStorage).filter(key => 
+                key.startsWith('mindly-') && localStorage.getItem(key) === 'undefined'
+            );
+            
+            keysToClean.forEach(key => {
+                localStorage.removeItem(key);
+                log(`🗑️ Clé corrompue supprimée: ${key}`, 'ok');
+            });
+            
+            // Créer des données de base
+            const basicData = {
+                'mindly-user': JSON.stringify({
+                    id: 'diagnostic-user',
+                    name: 'Utilisateur Diagnostic',
+                    email: 'diagnostic@mindly.test'
+                }),
+                'mindly-theme': 'mindly-theme',
+                'mindly-onboarding-completed': 'true'
+            };
+            
+            Object.entries(basicData).forEach(([key, value]) => {
+                localStorage.setItem(key, value);
+                log(`💾 Donnée créée: ${key}`, 'ok');
+            });
+            
+            log('✅ Corrections appliquées - Testez MINDLY maintenant', 'ok');
+            updateStatus('✅ Corrections appliquées', 'ok');
+        }
+
+        function openMindly() {
+            log('🚀 Ouverture de MINDLY...', 'info');
+            window.open('./mindly-clean.html?dev=true', '_blank');
+        }
+
+        function clearLogs() {
+            logData = [];
+            document.getElementById('logs').textContent = '';
+        }
+
+        // Diagnostic automatique au chargement
+        window.addEventListener('load', () => {
+            setTimeout(runDiagnosis, 500);
+        });
+    </script>
+</body>
+</html>

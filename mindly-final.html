@@ -1,0 +1,1366 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINDLY - Application Complète de Bien-être Mental</title>
+    
+    <style>
+        :root {
+            --primary: #4CAF50;
+            --primary-light: #66BB6A;
+            --primary-dark: #2E7D32;
+            --secondary: #8BC34A;
+            --accent: #FF9800;
+            --background: #ffffff;
+            --text-primary: #1B5E20;
+            --text-secondary: #2E7D32;
+            --border-color: #C8E6C9;
+            --success-color: #4CAF50;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: var(--text-primary);
+        }
+
+        /* Header avec hamburger */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: rgba(255,255,255,0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+        }
+
+        .hamburger-menu {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+        }
+
+        .hamburger-menu:hover {
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.1);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .user-status {
+            color: #4CAF50;
+            font-size: 14px;
+        }
+
+        /* Menu hamburger dropdown */
+        .dropdown-menu {
+            position: fixed;
+            top: 0;
+            left: -300px;
+            width: 300px;
+            height: 100vh;
+            background: white;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            transition: left 0.3s ease;
+            z-index: 1001;
+            overflow-y: auto;
+        }
+
+        .dropdown-menu.show {
+            left: 0;
+        }
+
+        .dropdown-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-close {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .menu-section {
+            padding: 20px 0;
+        }
+
+        .menu-section-title {
+            font-weight: bold;
+            color: #667eea;
+            padding: 0 20px 10px 20px;
+            font-size: 14px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #333;
+            text-decoration: none;
+            transition: background 0.3s ease;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .menu-icon {
+            margin-right: 12px;
+            font-size: 18px;
+        }
+
+        /* Contenu principal */
+        .main-content {
+            margin-top: 70px;
+            padding: 20px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        .page.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .card {
+            background: rgba(255,255,255,0.95);
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .hero-card {
+            text-align: center;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+        }
+
+        .hero-icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+
+        .hero-title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .hero-text {
+            font-size: 16px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Grille de fonctionnalités */
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .feature-card {
+            background: rgba(255,255,255,0.1);
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .feature-card:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-5px);
+        }
+
+        .feature-icon {
+            font-size: 40px;
+            margin-bottom: 15px;
+        }
+
+        .feature-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .feature-desc {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        /* Boutons */
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: bold;
+            margin: 5px;
+            transition: all 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn:hover {
+            background: #5a67d8;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-secondary {
+            background: rgba(255,255,255,0.2);
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255,255,255,0.3);
+        }
+
+        /* Suivi d'humeur */
+        .mood-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .mood-item {
+            background: rgba(255,255,255,0.9);
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .mood-item:hover {
+            border-color: #667eea;
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+        }
+
+        .mood-item.selected {
+            border-color: #667eea;
+            background: rgba(102, 126, 234, 0.1);
+            transform: scale(1.05);
+        }
+
+        .mood-icon {
+            font-size: 30px;
+            margin-bottom: 10px;
+        }
+
+        .mood-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        /* Chat MINA */
+        .chat-container {
+            height: 500px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .chat-area {
+            flex: 1;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            padding: 20px;
+            overflow-y: auto;
+            background: #fafafa;
+        }
+
+        .message {
+            margin-bottom: 15px;
+            padding: 12px 18px;
+            border-radius: 18px;
+            max-width: 80%;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            background: white;
+            color: #333;
+            border: 1px solid #e0e0e0;
+            border-bottom-left-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .input-section {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-top: none;
+            border-radius: 0 0 12px 12px;
+            padding: 15px;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            outline: none;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        /* Statistiques */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f8f9ff, #e8f0ff);
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            border: 1px solid rgba(102, 126, 234, 0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            font-size: 14px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        /* Diagnostic graphiques circulaires */
+        .diagnostic-chart {
+            width: 150px;
+            height: 150px;
+            margin: 20px auto;
+            position: relative;
+        }
+
+        .chart-circle {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #4CAF50 0deg 120deg,
+                #FF9800 120deg 200deg,
+                #F44336 200deg 360deg
+            );
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .chart-center {
+            width: 80px;
+            height: 80px;
+            background: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 18px;
+            color: #333;
+        }
+
+        /* Notifications */
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 1002;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Exercices de bien-être */
+        .exercise-container {
+            text-align: center;
+            padding: 30px;
+        }
+
+        .breathing-circle {
+            width: 200px;
+            height: 200px;
+            border: 3px solid #667eea;
+            border-radius: 50%;
+            margin: 30px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            font-weight: bold;
+            color: #667eea;
+            transition: transform 4s ease-in-out;
+        }
+
+        .breathing-circle.inhale {
+            transform: scale(1.3);
+            background: rgba(102, 126, 234, 0.1);
+        }
+
+        .breathing-circle.exhale {
+            transform: scale(0.8);
+            background: rgba(76, 175, 80, 0.1);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 15px;
+            }
+            .feature-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .mood-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .dropdown-menu {
+                width: 250px;
+            }
+        }
+
+        /* Overlay pour fermer le menu */
+        .menu-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            display: none;
+        }
+
+        .menu-overlay.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <div class="header">
+        <button class="hamburger-menu" onclick="toggleMenu()">☰</button>
+        <div class="logo">
+            🧠 <span>MINDLY</span>
+        </div>
+        <div class="user-status">● En ligne</div>
+    </div>
+
+    <!-- Menu Overlay -->
+    <div class="menu-overlay" id="menuOverlay" onclick="closeMenu()"></div>
+
+    <!-- Menu Hamburger -->
+    <div class="dropdown-menu" id="dropdownMenu">
+        <div class="dropdown-header">
+            <div>
+                <div style="font-size: 18px; font-weight: bold;">MINDLY</div>
+                <div style="font-size: 12px; opacity: 0.8;">Votre compagnon bien-être</div>
+            </div>
+            <button class="dropdown-close" onclick="closeMenu()">×</button>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Navigation</div>
+            <a class="menu-item" onclick="showPage('home'); closeMenu();">
+                <span class="menu-icon">🏠</span>
+                <span>Accueil</span>
+            </a>
+            <a class="menu-item" onclick="showPage('mood'); closeMenu();">
+                <span class="menu-icon">☀️</span>
+                <span>Suivi d'humeur</span>
+            </a>
+            <a class="menu-item" onclick="showPage('chat'); closeMenu();">
+                <span class="menu-icon">💬</span>
+                <span>Chat MINA</span>
+            </a>
+            <a class="menu-item" onclick="showPage('analytics'); closeMenu();">
+                <span class="menu-icon">📊</span>
+                <span>Diagnostics</span>
+            </a>
+            <a class="menu-item" onclick="showPage('exercises'); closeMenu();">
+                <span class="menu-icon">🧘</span>
+                <span>Exercices</span>
+            </a>
+            <a class="menu-item" onclick="showPage('profile'); closeMenu();">
+                <span class="menu-icon">👤</span>
+                <span>Profil</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Personnalisation</div>
+            <a class="menu-item" onclick="showPage('themes'); closeMenu();">
+                <span class="menu-icon">🎨</span>
+                <span>Thèmes</span>
+            </a>
+            <a class="menu-item" onclick="showPage('notifications'); closeMenu();">
+                <span class="menu-icon">🔔</span>
+                <span>Notifications</span>
+            </a>
+        </div>
+
+        <div class="menu-section">
+            <div class="menu-section-title">Support</div>
+            <a class="menu-item" onclick="showPage('faq'); closeMenu();">
+                <span class="menu-icon">❓</span>
+                <span>FAQ</span>
+            </a>
+            <a class="menu-item" onclick="exportData(); closeMenu();">
+                <span class="menu-icon">💾</span>
+                <span>Exporter données</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Contenu principal -->
+    <div class="main-content">
+        <!-- Page Accueil -->
+        <div class="page active" id="home">
+            <div class="card hero-card">
+                <div class="hero-icon">🎉</div>
+                <div class="hero-title">Bienvenue dans MINDLY !</div>
+                <div class="hero-text">
+                    Votre application complète de bien-être mental avec toutes les fonctionnalités avancées.<br>
+                    IA intelligente, diagnostic psychologique, exercices guidés et bien plus encore.
+                </div>
+                
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="showPage('mood')">
+                        <div class="feature-icon">📊</div>
+                        <div class="feature-title">Suivi d'humeur</div>
+                        <div class="feature-desc">Analysez vos émotions avec des graphiques détaillés</div>
+                    </div>
+                    <div class="feature-card" onclick="showPage('chat')">
+                        <div class="feature-icon">🤖</div>
+                        <div class="feature-title">Chat MINA</div>
+                        <div class="feature-desc">Assistant IA intelligent pour votre bien-être</div>
+                    </div>
+                    <div class="feature-card" onclick="showPage('analytics')">
+                        <div class="feature-icon">📈</div>
+                        <div class="feature-title">Diagnostics</div>
+                        <div class="feature-desc">Graphiques circulaires et analyses psychologiques</div>
+                    </div>
+                    <div class="feature-card" onclick="showPage('exercises')">
+                        <div class="feature-icon">🧘</div>
+                        <div class="feature-title">Exercices</div>
+                        <div class="feature-desc">Méditation, respiration et relaxation guidées</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Aperçu rapide</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalMoods">0</div>
+                        <div class="stat-label">Humeurs enregistrées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalChats">0</div>
+                        <div class="stat-label">Conversations</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Jours actifs</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">95%</div>
+                        <div class="stat-label">Bien-être</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Suivi d'humeur -->
+        <div class="page" id="mood">
+            <div class="card">
+                <h3>☀️ Comment vous sentez-vous maintenant ?</h3>
+                <div class="mood-grid">
+                    <div class="mood-item" onclick="selectMood(this, 'Joyeux', '😊')">
+                        <div class="mood-icon">😊</div>
+                        <div class="mood-label">Joyeux</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Calme', '😌')">
+                        <div class="mood-icon">😌</div>
+                        <div class="mood-label">Calme</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Excité', '🤗')">
+                        <div class="mood-icon">🤗</div>
+                        <div class="mood-label">Excité</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Neutre', '😐')">
+                        <div class="mood-icon">😐</div>
+                        <div class="mood-label">Neutre</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Fatigué', '😴')">
+                        <div class="mood-icon">😴</div>
+                        <div class="mood-label">Fatigué</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Anxieux', '😰')">
+                        <div class="mood-icon">😰</div>
+                        <div class="mood-label">Anxieux</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Triste', '😢')">
+                        <div class="mood-icon">😢</div>
+                        <div class="mood-label">Triste</div>
+                    </div>
+                    <div class="mood-item" onclick="selectMood(this, 'Colère', '😠')">
+                        <div class="mood-icon">😠</div>
+                        <div class="mood-label">En colère</div>
+                    </div>
+                </div>
+                
+                <div style="text-align: center; margin-top: 25px;">
+                    <button class="btn" onclick="saveMood()" id="saveMoodBtn" disabled>
+                        💾 Enregistrer mon humeur
+                    </button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Historique de vos humeurs</h3>
+                <div id="moodHistory">
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+                        <p>Aucune entrée pour le moment.<br>Commencez à enregistrer vos humeurs !</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Chat MINA -->
+        <div class="page" id="chat">
+            <div class="card">
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <span style="font-size: 24px;">🤖</span>
+                        <div>
+                            <div style="font-weight: bold;">MINA</div>
+                            <div style="font-size: 12px; opacity: 0.8;">Assistant IA • En ligne</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chat-area" id="chatArea">
+                        <div class="message bot">
+                            Bonjour ! Je suis MINA, votre assistante bien-être intelligente. 😊<br><br>
+                            Je peux vous aider avec vos émotions, répondre à vos questions sur le bien-être mental, 
+                            et vous guider dans vos exercices de relaxation. Comment vous sentez-vous aujourd'hui ?
+                        </div>
+                    </div>
+                    
+                    <div class="input-section">
+                        <div class="input-row">
+                            <input type="text" class="chat-input" id="messageInput" placeholder="Écrivez votre message...">
+                            <button class="btn" onclick="sendMessage()">📤 Envoyer</button>
+                        </div>
+                        <div style="display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap;">
+                            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="quickMessage('Je me sens bien aujourd\'hui')">😊 Je me sens bien</button>
+                            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="quickMessage('Je suis un peu stressé')">😰 Je suis stressé</button>
+                            <button class="btn btn-secondary" style="font-size: 12px; padding: 6px 12px;" onclick="quickMessage('Comment méditer ?')">🧘 Comment méditer ?</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Diagnostics -->
+        <div class="page" id="analytics">
+            <div class="card">
+                <h3>📊 Diagnostic psychologique avec graphiques circulaires</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                    <div style="text-align: center;">
+                        <h4>État émotionnel</h4>
+                        <div class="diagnostic-chart">
+                            <div class="chart-circle">
+                                <div class="chart-center">75%</div>
+                            </div>
+                        </div>
+                        <p style="color: #4CAF50; font-weight: bold;">Bien-être général</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4>Niveau de stress</h4>
+                        <div class="diagnostic-chart">
+                            <div class="chart-circle" style="background: conic-gradient(#FF9800 0deg 90deg, #4CAF50 90deg 360deg);">
+                                <div class="chart-center">25%</div>
+                            </div>
+                        </div>
+                        <p style="color: #FF9800; font-weight: bold;">Stress modéré</p>
+                    </div>
+                    
+                    <div style="text-align: center;">
+                        <h4>Activité mentale</h4>
+                        <div class="diagnostic-chart">
+                            <div class="chart-circle" style="background: conic-gradient(#4CAF50 0deg 270deg, #E0E0E0 270deg 360deg);">
+                                <div class="chart-center">90%</div>
+                            </div>
+                        </div>
+                        <p style="color: #4CAF50; font-weight: bold;">Excellent</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📈 Statistiques détaillées</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="moodCount">0</div>
+                        <div class="stat-label">Humeurs analysées</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">89%</div>
+                        <div class="stat-label">Satisfaction</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">12</div>
+                        <div class="stat-label">Séances méditation</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">7</div>
+                        <div class="stat-label">Jours consécutifs</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page Exercices -->
+        <div class="page" id="exercises">
+            <div class="card">
+                <h3>🧘 Exercices de bien-être</h3>
+                <div class="feature-grid">
+                    <div class="feature-card" onclick="startBreathingExercise()">
+                        <div class="feature-icon">🫁</div>
+                        <div class="feature-title">Respiration guidée</div>
+                        <div class="feature-desc">Exercice 4-7-8 pour se détendre</div>
+                    </div>
+                    <div class="feature-card" onclick="startMeditation()">
+                        <div class="feature-icon">🧘‍♀️</div>
+                        <div class="feature-title">Méditation</div>
+                        <div class="feature-desc">Session de 10 minutes</div>
+                    </div>
+                    <div class="feature-card" onclick="startRelaxation()">
+                        <div class="feature-icon">😌</div>
+                        <div class="feature-title">Relaxation</div>
+                        <div class="feature-desc">Détente musculaire progressive</div>
+                    </div>
+                    <div class="feature-card" onclick="startMindfulness()">
+                        <div class="feature-icon">🌸</div>
+                        <div class="feature-title">Pleine conscience</div>
+                        <div class="feature-desc">Technique 5-4-3-2-1</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" id="exerciseArea" style="display: none;">
+                <div id="exerciseContent"></div>
+            </div>
+        </div>
+
+        <!-- Page Profil -->
+        <div class="page" id="profile">
+            <div class="card" style="text-align: center; background: linear-gradient(135deg, #667eea, #764ba2); color: white;">
+                <div style="font-size: 80px; margin-bottom: 15px;">👤</div>
+                <h2>Utilisateur MINDLY</h2>
+                <p style="opacity: 0.9;">Membre depuis aujourd'hui • Toutes fonctionnalités activées</p>
+            </div>
+
+            <div class="card">
+                <h3>📊 Vos statistiques</h3>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="profileMoods">0</div>
+                        <div class="stat-label">Humeurs total</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="profileMessages">0</div>
+                        <div class="stat-label">Messages MINA</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">5</div>
+                        <div class="stat-label">Exercices faits</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value">🌟</div>
+                        <div class="stat-label">Niveau expert</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>⚙️ Actions</h3>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <button class="btn" onclick="exportData()">💾 Exporter données</button>
+                    <button class="btn" onclick="resetApp()">🔄 Réinitialiser</button>
+                    <button class="btn" onclick="toggleTheme()">🌙 Mode sombre</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Page FAQ -->
+        <div class="page" id="faq">
+            <div class="card">
+                <h3>❓ Questions fréquentes avec IA</h3>
+                <div style="margin-bottom: 20px;">
+                    <input type="text" id="faqSearch" placeholder="Rechercher dans les FAQ..." 
+                           style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 10px; font-size: 14px;">
+                </div>
+                
+                <div id="faqResults">
+                    <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <h4 style="color: #667eea;">Comment utiliser le menu hamburger ?</h4>
+                        <p>Le menu hamburger (☰) vous donne accès à toutes les fonctionnalités : navigation, personnalisation, diagnostics, exercices et support.</p>
+                    </div>
+                    
+                    <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <h4 style="color: #667eea;">Comment fonctionne MINA l'IA ?</h4>
+                        <p>MINA analyse vos messages et répond de manière contextuelle. Elle peut vous aider avec le stress, proposer des exercices, et répondre à vos questions sur le bien-être.</p>
+                    </div>
+                    
+                    <div style="background: #f8f9ff; padding: 15px; border-radius: 10px;">
+                        <h4 style="color: #667eea;">Mes données sont-elles sécurisées ?</h4>
+                        <p>Oui, toutes vos données restent sur votre appareil. Aucune information personnelle n'est envoyée vers des serveurs externes.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        let currentMood = null;
+        let moodData = JSON.parse(localStorage.getItem('mindly_moods') || '[]');
+        let chatData = JSON.parse(localStorage.getItem('mindly_chats') || '[]');
+        let isBreathing = false;
+
+        // Navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(pageId).classList.add('active');
+            
+            if (pageId === 'mood') {
+                updateMoodHistory();
+            } else if (pageId === 'profile') {
+                updateProfileStats();
+            }
+            
+            console.log('Navigation vers:', pageId);
+        }
+
+        // Menu hamburger
+        function toggleMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            const overlay = document.getElementById('menuOverlay');
+            
+            menu.classList.toggle('show');
+            overlay.classList.toggle('show');
+        }
+
+        function closeMenu() {
+            const menu = document.getElementById('dropdownMenu');
+            const overlay = document.getElementById('menuOverlay');
+            
+            menu.classList.remove('show');
+            overlay.classList.remove('show');
+        }
+
+        // Gestion des humeurs
+        function selectMood(element, mood, emoji) {
+            document.querySelectorAll('.mood-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            element.classList.add('selected');
+            
+            currentMood = {
+                mood: mood,
+                emoji: emoji,
+                timestamp: new Date(),
+                date: new Date().toLocaleDateString('fr-FR'),
+                time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            const saveBtn = document.getElementById('saveMoodBtn');
+            saveBtn.disabled = false;
+            saveBtn.style.background = '#4CAF50';
+            saveBtn.innerHTML = `💾 Enregistrer "${mood}"`;
+        }
+
+        function saveMood() {
+            if (!currentMood) {
+                showNotification('Veuillez sélectionner une humeur', 'warning');
+                return;
+            }
+            
+            moodData.push(currentMood);
+            localStorage.setItem('mindly_moods', JSON.stringify(moodData));
+            
+            showNotification(`Humeur "${currentMood.mood}" enregistrée !`, 'success');
+            
+            updateMoodHistory();
+            updateStats();
+            
+            document.querySelectorAll('.mood-item').forEach(item => {
+                item.classList.remove('selected');
+            });
+            
+            const saveBtn = document.getElementById('saveMoodBtn');
+            saveBtn.disabled = true;
+            saveBtn.style.background = '#ccc';
+            saveBtn.innerHTML = '💾 Enregistrer mon humeur';
+            
+            currentMood = null;
+        }
+
+        function updateMoodHistory() {
+            const historyContainer = document.getElementById('moodHistory');
+            
+            if (moodData.length === 0) {
+                historyContainer.innerHTML = `
+                    <div style="text-align: center; color: #666; padding: 40px;">
+                        <div style="font-size: 48px; margin-bottom: 15px;">📊</div>
+                        <p>Aucune entrée pour le moment.<br>Commencez à enregistrer vos humeurs !</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            const sortedMoods = [...moodData].sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+            
+            historyContainer.innerHTML = sortedMoods.map(mood => `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 12px 0; border-bottom: 1px solid #f0f0f0;">
+                    <div style="font-size: 24px;">${mood.emoji}</div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; color: #333;">${mood.mood}</div>
+                        <div style="font-size: 12px; color: #666;">${mood.date} à ${mood.time}</div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Chat MINA avec IA
+        function sendMessage() {
+            const input = document.getElementById('messageInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            addMessage(message, 'user');
+            input.value = '';
+            
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                addMessage(response, 'bot');
+            }, 1000 + Math.random() * 1000);
+        }
+
+        function quickMessage(message) {
+            document.getElementById('messageInput').value = message;
+            sendMessage();
+        }
+
+        function addMessage(text, sender) {
+            const chatArea = document.getElementById('chatArea');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = text;
+            
+            chatArea.appendChild(messageDiv);
+            chatArea.scrollTop = chatArea.scrollHeight;
+            
+            if (sender === 'user') {
+                chatData.push({ message: text, timestamp: new Date(), sender: sender });
+                localStorage.setItem('mindly_chats', JSON.stringify(chatData));
+                updateStats();
+            }
+        }
+
+        function generateAIResponse(message) {
+            const lowerMessage = message.toLowerCase();
+            
+            // Réponses contextuelles intelligentes
+            if (lowerMessage.includes('stress') || lowerMessage.includes('anxieux') || lowerMessage.includes('angoisse')) {
+                return "Je comprends que vous vous sentiez stressé. 😌 Voici ce que je peux vous suggérer :<br><br>• Essayez l'exercice de respiration 4-7-8<br>• Pratiquez la méditation de pleine conscience<br>• Parlez-moi de ce qui vous préoccupe<br><br>Voulez-vous que je vous guide dans un exercice de relaxation ?";
+            }
+            
+            if (lowerMessage.includes('bien') || lowerMessage.includes('heureux') || lowerMessage.includes('joyeux')) {
+                return "C'est merveilleux de vous entendre si positif ! 😊✨<br><br>Votre bien-être rayonne ! Continuez à cultiver cette énergie positive. Qu'est-ce qui vous rend particulièrement heureux aujourd'hui ?";
+            }
+            
+            if (lowerMessage.includes('méditer') || lowerMessage.includes('méditation')) {
+                return "La méditation est un excellent choix ! 🧘‍♀️<br><br>Je peux vous proposer :<br>• Méditation guidée de 10 minutes<br>• Exercices de respiration<br>• Techniques de pleine conscience<br><br>Quelle durée préférez-vous pour commencer ?";
+            }
+            
+            if (lowerMessage.includes('aide') || lowerMessage.includes('aider')) {
+                return "Je suis là pour vous accompagner ! 💙<br><br>Je peux vous aider avec :<br>• Gestion du stress et des émotions<br>• Exercices de relaxation<br>• Conseils de bien-être<br>• Écoute et soutien<br><br>Dites-moi ce qui vous préoccupe.";
+            }
+            
+            if (lowerMessage.includes('dormir') || lowerMessage.includes('sommeil') || lowerMessage.includes('insomnie')) {
+                return "Le sommeil est essentiel pour votre bien-être ! 😴<br><br>Conseils pour mieux dormir :<br>• Évitez les écrans 1h avant le coucher<br>• Pratiquez la relaxation musculaire<br>• Créez une routine apaisante<br>• Essayez la respiration 4-7-8<br><br>Voulez-vous un exercice de relaxation ?";
+            }
+            
+            // Réponses par défaut variées et empathiques
+            const defaultResponses = [
+                "Je vous écoute attentivement. 💭 Pouvez-vous m'en dire plus sur ce que vous ressentez ?",
+                "Merci de partager cela avec moi. 🤗 Comment puis-je vous accompagner aujourd'hui ?",
+                "C'est important ce que vous me dites. 💚 Qu'est-ce qui vous fait ressentir cela ?",
+                "Je comprends. 🌸 Avez-vous déjà vécu quelque chose de similaire ?",
+                "Vos émotions sont précieuses. 🌟 Prenez le temps de vous exprimer librement.",
+                "Votre bien-être me tient à cœur. ❤️ Comment puis-je vous soutenir maintenant ?"
+            ];
+            
+            return defaultResponses[Math.floor(Math.random() * defaultResponses.length)];
+        }
+
+        // Exercices de bien-être
+        function startBreathingExercise() {
+            const exerciseArea = document.getElementById('exerciseArea');
+            const exerciseContent = document.getElementById('exerciseContent');
+            
+            exerciseContent.innerHTML = `
+                <div class="exercise-container">
+                    <h3>🫁 Exercice de respiration 4-7-8</h3>
+                    <p>Suivez le rythme pour vous détendre profondément</p>
+                    
+                    <div class="breathing-circle" id="breathingCircle">Prêt ?</div>
+                    
+                    <div style="margin: 30px 0;">
+                        <button class="btn" onclick="startBreathing()">▶️ Commencer</button>
+                        <button class="btn btn-secondary" onclick="stopBreathing()">⏹️ Arrêter</button>
+                    </div>
+                    
+                    <p style="font-size: 14px; color: #666;">
+                        • Inspirez pendant 4 secondes<br>
+                        • Retenez pendant 7 secondes<br>
+                        • Expirez pendant 8 secondes
+                    </p>
+                </div>
+            `;
+            
+            exerciseArea.style.display = 'block';
+            exerciseArea.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        let breathingInterval;
+        function startBreathing() {
+            const circle = document.getElementById('breathingCircle');
+            if (!circle) return;
+            
+            isBreathing = true;
+            let phase = 0; // 0: inspire, 1: hold, 2: expire
+            
+            function breathingCycle() {
+                if (!isBreathing) return;
+                
+                switch(phase) {
+                    case 0: // Inspiration
+                        circle.className = 'breathing-circle inhale';
+                        circle.textContent = 'Inspirez (4s)';
+                        setTimeout(() => { if(isBreathing) { phase = 1; breathingCycle(); } }, 4000);
+                        break;
+                    case 1: // Retenir
+                        circle.className = 'breathing-circle';
+                        circle.textContent = 'Retenez (7s)';
+                        setTimeout(() => { if(isBreathing) { phase = 2; breathingCycle(); } }, 7000);
+                        break;
+                    case 2: // Expiration
+                        circle.className = 'breathing-circle exhale';
+                        circle.textContent = 'Expirez (8s)';
+                        setTimeout(() => { if(isBreathing) { phase = 0; breathingCycle(); } }, 8000);
+                        break;
+                }
+            }
+            
+            breathingCycle();
+        }
+
+        function stopBreathing() {
+            isBreathing = false;
+            const circle = document.getElementById('breathingCircle');
+            if (circle) {
+                circle.className = 'breathing-circle';
+                circle.textContent = 'Exercice terminé';
+            }
+            showNotification('Exercice de respiration terminé ! 🌟', 'success');
+        }
+
+        function startMeditation() {
+            showNotification('Session de méditation démarrée ! 🧘‍♀️', 'success');
+        }
+
+        function startRelaxation() {
+            showNotification('Relaxation musculaire démarrée ! 😌', 'success');
+        }
+
+        function startMindfulness() {
+            showNotification('Exercice de pleine conscience démarré ! 🌸', 'success');
+        }
+
+        // Fonctions utilitaires
+        function updateStats() {
+            document.getElementById('totalMoods').textContent = moodData.length;
+            document.getElementById('totalChats').textContent = chatData.length;
+            document.getElementById('moodCount').textContent = moodData.length;
+            
+            if (document.getElementById('profileMoods')) {
+                document.getElementById('profileMoods').textContent = moodData.length;
+                document.getElementById('profileMessages').textContent = chatData.length;
+            }
+        }
+
+        function updateProfileStats() {
+            updateStats();
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.style.background = type === 'success' ? '#4CAF50' : '#FF9800';
+            notification.innerHTML = `<span style="margin-right: 10px;">${type === 'success' ? '✅' : '⚠️'}</span>${message}`;
+            
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.style.opacity = '0';
+                setTimeout(() => notification.remove(), 300);
+            }, 3000);
+        }
+
+        function exportData() {
+            const data = {
+                moods: moodData,
+                chats: chatData,
+                exported: new Date().toISOString(),
+                version: '1.0'
+            };
+            
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mindly-export-${new Date().toISOString().split('T')[0]}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            showNotification('Données exportées avec succès ! 💾', 'success');
+        }
+
+        function resetApp() {
+            if (confirm('⚠️ Êtes-vous sûr de vouloir effacer toutes vos données ?')) {
+                localStorage.clear();
+                moodData = [];
+                chatData = [];
+                
+                document.getElementById('chatArea').innerHTML = `
+                    <div class="message bot">
+                        Bonjour ! Je suis MINA, votre assistante bien-être intelligente. 😊<br><br>
+                        Je peux vous aider avec vos émotions, répondre à vos questions sur le bien-être mental, 
+                        et vous guider dans vos exercices de relaxation. Comment vous sentez-vous aujourd'hui ?
+                    </div>
+                `;
+                
+                updateMoodHistory();
+                updateStats();
+                
+                showNotification('Application réinitialisée ! 🔄', 'success');
+            }
+        }
+
+        function toggleTheme() {
+            document.body.style.filter = document.body.style.filter === 'invert(1) hue-rotate(180deg)' ? '' : 'invert(1) hue-rotate(180deg)';
+            showNotification('Thème modifié ! 🌙', 'success');
+        }
+
+        // FAQ avec recherche IA
+        document.addEventListener('DOMContentLoaded', function() {
+            const faqSearch = document.getElementById('faqSearch');
+            if (faqSearch) {
+                faqSearch.addEventListener('input', function() {
+                    const query = this.value.toLowerCase();
+                    if (query.length > 2) {
+                        searchFAQ(query);
+                    }
+                });
+            }
+        });
+
+        function searchFAQ(query) {
+            const faqData = [
+                {
+                    question: "Comment utiliser le menu hamburger ?",
+                    answer: "Le menu hamburger (☰) vous donne accès à toutes les fonctionnalités : navigation rapide, personnalisation, diagnostics, exercices et support. Cliquez simplement dessus pour l'ouvrir.",
+                    tags: ["menu", "hamburger", "navigation"]
+                },
+                {
+                    question: "Comment fonctionne MINA l'IA ?",
+                    answer: "MINA analyse vos messages et répond de manière contextuelle. Elle peut vous aider avec le stress, proposer des exercices, et répondre à vos questions sur le bien-être mental.",
+                    tags: ["mina", "ia", "intelligence", "chat"]
+                },
+                {
+                    question: "Comment utiliser les graphiques circulaires ?",
+                    answer: "Les graphiques circulaires dans la section Diagnostics vous montrent votre état émotionnel, niveau de stress, et activité mentale en temps réel avec des jauges visuelles intuitives.",
+                    tags: ["graphique", "circulaire", "diagnostic", "statistique"]
+                }
+            ];
+
+            const results = faqData.filter(faq => 
+                faq.question.toLowerCase().includes(query) ||
+                faq.answer.toLowerCase().includes(query) ||
+                faq.tags.some(tag => tag.includes(query))
+            );
+
+            const resultsContainer = document.getElementById('faqResults');
+            if (results.length > 0) {
+                resultsContainer.innerHTML = results.map(faq => `
+                    <div style="background: #f8f9ff; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+                        <h4 style="color: #667eea;">${faq.question}</h4>
+                        <p>${faq.answer}</p>
+                    </div>
+                `).join('');
+            } else {
+                resultsContainer.innerHTML = '<p style="text-align: center; color: #666;">Aucun résultat trouvé pour votre recherche.</p>';
+            }
+        }
+
+        // Gestion des événements
+        document.getElementById('messageInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+
+        // Fermer le menu en cliquant à l'extérieur
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('dropdownMenu');
+            const hamburger = document.querySelector('.hamburger-menu');
+            
+            if (!menu.contains(e.target) && !hamburger.contains(e.target)) {
+                closeMenu();
+            }
+        });
+
+        // Initialisation
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🧠 MINDLY - Application complète chargée !');
+            
+            updateStats();
+            updateMoodHistory();
+            
+            setTimeout(() => {
+                showNotification('🎉 Bienvenue dans MINDLY ! Toutes les fonctionnalités sont actives.', 'success');
+            }, 1000);
+        });
+    </script>
+</body>
+</html>

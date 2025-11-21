@@ -1,78 +1,43 @@
-<!DOCTYPE html><!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="fr">
 
-<html lang="fr"><html lang="fr">
-
-<head><head>
-
-    <meta charset="UTF-8">    <meta charset="UTF-8">
-
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>MINDLY - Application de Bien-être Mental</title>    <title>🌸 MINDLY Test</title>
-
-    <style>    <style>
-
-        /* Styles CSS extraits de mindly-fonctionnel.html */        body {
-
-        * {            font-family: Arial, sans-serif;
-
-            margin: 0;            background: linear-gradient(135deg, #4CAF50, #45a049);
-
-            padding: 0;            color: white;
-
-            box-sizing: border-box;            text-align: center;
-
-        }            padding: 50px;
-
-        body {            margin: 0;
-
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;        }
-
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);        .container {
-
-            min-height: 100vh;            background: white;
-
-            color: #333;            color: #333;
-
-        }            padding: 40px;
-
-        /* Ajout des autres styles ici */            border-radius: 20px;
-
-    </style>            max-width: 500px;
-
-</head>            margin: 0 auto;
-
-<body>            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-
-    <!-- Contenu HTML extrait de mindly-fonctionnel.html -->        }
-
-    <header>        .logo {
-
-        <h1>Bienvenue sur MINDLY</h1>            font-size: 60px;
-
-    </header>            margin-bottom: 20px;
-
-    <main>        }
-
-        <section>        .title {
-
-            <h2>Fonctionnalités principales</h2>            font-size: 28px;
-
-            <p>Explorez les diagnostics, exercices, et plus encore.</p>            font-weight: bold;
-
-        </section>            margin-bottom: 10px;
-
-    </main>            color: #4CAF50;
-
-    <footer>        }
-
-        <p>&copy; 2025 MINDLY</p>        .subtitle {
-
-    </footer>            font-size: 16px;
-
-</body>            color: #666;
-
-</html>            margin-bottom: 30px;
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINDLY - Application de Bien-être Mental</title>
+    <style>
+        /* Styles principaux */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            color: white;
+            text-align: center;
+            padding: 50px;
+        }
+        .container {
+            background: white;
+            color: #333;
+            padding: 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        .logo {
+            font-size: 60px;
+            margin-bottom: 20px;
+        }
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #4CAF50;
+        }
+        .subtitle {
+            font-size: 16px;
+            color: #666;
+            margin-bottom: 30px;
         }
         .btn {
             background: linear-gradient(135deg, #4CAF50, #45a049);
@@ -98,8 +63,27 @@
             border-radius: 10px;
             margin: 20px 0;
         }
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: #4CAF50;
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+        }
+        .nav-item {
+            color: white;
+            font-size: 14px;
+            text-align: center;
+            cursor: pointer;
+        }
+        .nav-item.active {
+            font-weight: bold;
+        }
     </style>
 </head>
+
 <body>
     <div class="container">
         <div class="logo">🌸</div>
@@ -121,5 +105,20 @@
             <p>3. Cliquez sur "Installer MINDLY" quand il apparaît</p>
         </div>
     </div>
+
+    <div class="bottom-nav">
+        <div class="nav-item active" onclick="alert('Accueil')">Accueil</div>
+        <div class="nav-item" onclick="alert('Humeur')">Humeur</div>
+        <div class="nav-item" onclick="alert('Communauté')">Communauté</div>
+        <div class="nav-item" onclick="alert('Profil')">Profil</div>
+    </div>
+
+    <script>
+        // Ajout des scripts nécessaires pour les fonctionnalités interactives
+        function alert(message) {
+            console.log(message);
+        }
+    </script>
 </body>
+
 </html>

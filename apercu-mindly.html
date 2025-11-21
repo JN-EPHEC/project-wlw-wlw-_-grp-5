@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MINDLY - Aperçu de l'Application</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background-color: #E8F5E8;
+            color: #000000;
+        }
+        
+        .phone-container {
+            max-width: 375px;
+            margin: 20px auto;
+            background: white;
+            border-radius: 30px;
+            overflow: hidden;
+            box-shadow: 0 0 30px rgba(0,0,0,0.2);
+            height: 812px;
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 44px;
+            background: #C8E6C9;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+            font-weight: 600;
+            color: #1B5E20;
+        }
+        
+        .app-content {
+            height: calc(100% - 44px - 83px);
+            background-color: #E8F5E8;
+            overflow-y: auto;
+        }
+        
+        .header {
+            background-color: #C8E6C9;
+            padding: 30px 20px;
+            text-align: center;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+        
+        .logo {
+            font-size: 36px;
+            font-weight: 300;
+            color: #1B5E20;
+            letter-spacing: 3px;
+            margin-bottom: 5px;
+        }
+        
+        .tagline {
+            font-size: 16px;
+            color: #000000;
+            font-weight: 400;
+        }
+        
+        .welcome-section {
+            padding: 25px;
+            text-align: center;
+        }
+        
+        .welcome-text {
+            font-size: 28px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 10px;
+        }
+        
+        .welcome-subtext {
+            font-size: 17px;
+            color: #000000;
+            line-height: 26px;
+            padding: 0 10px;
+        }
+        
+        .mood-section {
+            padding: 20px;
+        }
+        
+        .section-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .mood-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: space-between;
+        }
+        
+        .mood-card {
+            width: calc(50% - 7.5px);
+            padding: 20px;
+            border-radius: 20px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.08);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .mood-card:hover {
+            transform: translateY(-2px);
+        }
+        
+        .mood-happy { background-color: #A5D6A7; }
+        .mood-calm { background-color: #81C784; }
+        .mood-neutral { background-color: #66BB6A; }
+        .mood-tired { background-color: #4CAF50; }
+        
+        .mood-emoji {
+            font-size: 32px;
+            margin-bottom: 8px;
+            display: block;
+        }
+        
+        .mood-label {
+            font-size: 16px;
+            font-weight: 500;
+            color: #000000;
+        }
+        
+        .actions-section {
+            padding: 20px;
+        }
+        
+        .action-card {
+            display: flex;
+            align-items: center;
+            background-color: #C8E6C9;
+            padding: 20px;
+            border-radius: 16px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .action-card:hover {
+            transform: translateY(-1px);
+        }
+        
+        .action-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 25px;
+            background-color: #A5D6A7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 15px;
+            font-size: 24px;
+        }
+        
+        .action-content {
+            flex: 1;
+        }
+        
+        .action-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #000000;
+            margin-bottom: 4px;
+        }
+        
+        .action-subtitle {
+            font-size: 14px;
+            color: #000000;
+            line-height: 20px;
+        }
+        
+        .motivation-card {
+            margin: 20px;
+            padding: 20px;
+            background-color: #DCEDC8;
+            border-radius: 16px;
+            border-left: 4px solid #388E3C;
+            text-align: center;
+        }
+        
+        .motivation-text {
+            font-size: 16px;
+            color: #000000;
+            font-style: italic;
+            line-height: 24px;
+        }
+        
+        .tab-bar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 83px;
+            background-color: #C8E6C9;
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            padding: 8px 0;
+            border-top: none;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        
+        .tab-item.active {
+            color: #1B5E20;
+        }
+        
+        .tab-item:not(.active) {
+            color: #666666;
+        }
+        
+        .tab-icon {
+            font-size: 24px;
+        }
+        
+        .tab-label {
+            font-size: 10px;
+            font-weight: 500;
+        }
+        
+        .demo-note {
+            text-align: center;
+            padding: 20px;
+            background: #f0f8ff;
+            margin: 20px;
+            border-radius: 10px;
+            border: 2px solid #007bff;
+            color: #007bff;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="demo-note">
+        📱 APERÇU DE L'APPLICATION MINDLY 📱<br>
+        Interface mobile responsive avec thème vert
+    </div>
+    
+    <div class="phone-container">
+        <div class="status-bar">
+            9:41 ⚡ 📶 🔋
+        </div>
+        
+        <div class="app-content">
+            <!-- Header -->
+            <div class="header">
+                <div class="logo">MINDLY</div>
+                <div class="tagline">Votre espace de bien-être</div>
+            </div>
+
+            <!-- Message d'accueil -->
+            <div class="welcome-section">
+                <div class="welcome-text">Bonjour ! 🌸</div>
+                <div class="welcome-subtext">
+                    Prenez un moment pour vous. Comment vous sentez-vous aujourd'hui ?
+                </div>
+            </div>
+
+            <!-- Section humeur -->
+            <div class="mood-section">
+                <div class="section-title">Mon humeur du jour</div>
+                <div class="mood-grid">
+                    <div class="mood-card mood-happy">
+                        <span class="mood-emoji">😊</span>
+                        <span class="mood-label">Épanoui</span>
+                    </div>
+                    
+                    <div class="mood-card mood-calm">
+                        <span class="mood-emoji">😌</span>
+                        <span class="mood-label">Serein</span>
+                    </div>
+                    
+                    <div class="mood-card mood-neutral">
+                        <span class="mood-emoji">😐</span>
+                        <span class="mood-label">Neutre</span>
+                    </div>
+                    
+                    <div class="mood-card mood-tired">
+                        <span class="mood-emoji">😴</span>
+                        <span class="mood-label">Fatigué</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Actions bienveillantes -->
+            <div class="actions-section">
+                <div class="section-title">Prendre soin de moi</div>
+                
+                <div class="action-card">
+                    <div class="action-icon">🧘‍♀️</div>
+                    <div class="action-content">
+                        <div class="action-title">Méditation guidée</div>
+                        <div class="action-subtitle">5 minutes de détente</div>
+                    </div>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon">💬</div>
+                    <div class="action-content">
+                        <div class="action-title">Parler à MindSafe</div>
+                        <div class="action-subtitle">Votre compagnon IA bienveillant</div>
+                    </div>
+                </div>
+
+                <div class="action-card">
+                    <div class="action-icon">📝</div>
+                    <div class="action-content">
+                        <div class="action-title">Journal personnel</div>
+                        <div class="action-subtitle">Notez vos pensées</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Message motivant -->
+            <div class="motivation-card">
+                <div class="motivation-text">
+                    "Chaque petit pas compte. Vous êtes sur le bon chemin." ✨
+                </div>
+            </div>
+        </div>
+
+        <!-- Barre de navigation -->
+        <div class="tab-bar">
+            <div class="tab-item active">
+                <div class="tab-icon">🏠</div>
+                <div class="tab-label">Accueil</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">💚</div>
+                <div class="tab-label">Humeur</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">💬</div>
+                <div class="tab-label">MindSafe</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">👥</div>
+                <div class="tab-label">Communauté</div>
+            </div>
+            <div class="tab-item">
+                <div class="tab-icon">👤</div>
+                <div class="tab-label">Profil</div>
+            </div>
+        </div>
+    </div>
+    
+    <div style="text-align: center; margin: 20px; padding: 20px; background: #E8F5E8; border-radius: 10px;">
+        <h3 style="color: #1B5E20; margin-bottom: 10px;">🎨 Palette de couleurs MINDLY</h3>
+        <div style="display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;">
+            <div style="padding: 10px; background: #E8F5E8; border-radius: 5px; border: 1px solid #ccc;">
+                <strong>#E8F5E8</strong><br>Fond principal
+            </div>
+            <div style="padding: 10px; background: #C8E6C9; border-radius: 5px; border: 1px solid #ccc;">
+                <strong>#C8E6C9</strong><br>Cartes & Header
+            </div>
+            <div style="padding: 10px; background: #1B5E20; color: white; border-radius: 5px;">
+                <strong>#1B5E20</strong><br>Titres principaux
+            </div>
+            <div style="padding: 10px; background: #000000; color: white; border-radius: 5px;">
+                <strong>#000000</strong><br>Texte
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Simulation d'interactivité pour l'aperçu
+        document.querySelectorAll('.mood-card, .action-card').forEach(card => {
+            card.addEventListener('click', () => {
+                card.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    card.style.transform = '';
+                }, 150);
+            });
+        });
+
+        document.querySelectorAll('.tab-item').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+                tab.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>
