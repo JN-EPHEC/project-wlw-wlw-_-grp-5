@@ -1,0 +1,347 @@
+// screens/MindSafeChatScreen.js
+import React, { useState } from 'react';
+import { 
+  StyleSheet, 
+  Text, 
+  View, 
+  FlatList, 
+  TextInput, 
+  TouchableOpacity, 
+  SafeAreaView, 
+  KeyboardAvoidingView, 
+  Platform, 
+  Image 
+} from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+
+// --- Données fictives de la conversation (pour l'état initial) ---
+const initialMessages = [
+  {
+    id: '1',
+    text: "Bonjour ! Je suis MindSafe, votre chatbot d'IA pour le bien-être. Comment puis-je vous aider aujourd'hui ?",
+    sender: 'MindSafe',
+    time: '10:00',
+    analysis: 'Message d\'introduction, offre d\'aide.',
+  },
+  {
+    id: '2',
+    text: 'Je me sens un peu dépassé ces derniers temps...',
+    sender: 'User',
+    time: '10:05',
+  },
+  {
+    id: '3',
+    text: 'Je le comprends. Est-ce qu\'il y a quelque chose de précis qui vous préoccupe ? Je suis là pour écouter.',
+    sender: 'MindSafe',
+    time: '10:05',
+    analysis: 'Analyse : Reconnaissance d\'émotion (dépassé), proposition d\'écoute.',
+  },
+  {
+    id: '4',
+    text: 'J\'ai eu une journée stressante au travail et j\'ai du mal à me détendre.',
+    sender: 'User',
+    time: '10:15',
+  },
+  {
+    id: '5',
+    text: 'Le stress au travail peut être difficile. N\'oubliez pas qu\'il existe des ressources pour vous aider à gérer cela. Si le stress devient trop intense, n\'hésitez pas à consulter un professionnel de la santé. Vous n\'êtes pas seul.',
+    sender: 'MindSafe',
+    time: '10:15',
+    analysis: 'Analyse : Mot-clé critique (stress). Redirection vers ressources.',
+  },
+];
+
+// --- Composant de bulle de message ---
+const MessageBubble = ({ message }) => {
+  const isMindSafe = message.sender === 'MindSafe';
+
+  return (
+    <View style={[
+      styles.messageContainer,
+      isMindSafe ? styles.mindSafeContainer : styles.userContainer
+    ]}>
+      {isMindSafe && (
+        // Icône du robot MindSafe (Image locale ou Icône)
+        <Image 
+          source={require('../assets/mindsafe-bot-icon.png')} // Remplacer par votre icône MindSafe
+          style={styles.mindSafeIcon} 
+        />
+      )}
+      
+      <View style={[
+        styles.bubble,
+        isMindSafe ? styles.mindSafeBubble : styles.userBubble
+      ]}>
+        <Text style={isMindSafe ? styles.mindSafeText : styles.userText}>
+          {message.text}
+        </Text>
+        {/* L'analyse est cachée ou affichée pour les tests */}
+        {message.analysis && (
+          <Text style={styles.analysisText}>{message.analysis}</Text>
+        )}
+      </View>
+
+      <Text style={isMindSafe ? styles.mindSafeTime : styles.userTime}>
+        {message.time}
+      </Text>
+    </View>
+  );
+};
+
+// --- Composant principal ---
+export default function MindSafeChatScreen({ navigation }) {
+  const [messages, setMessages] = useState(initialMessages);
+  const [inputText, setInputText] = useState('');
+
+  // Fonction de simulation d'envoi de message (sans IA réelle)
+  const handleSendMessage = () => {
+    if (inputText.trim() === '') return;
+
+    const newMessage = {
+      id: Date.now().toString(),
+      text: inputText.trim(),
+      sender: 'User',
+      time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+    };
+
+    setMessages(prevMessages => [...prevMessages, newMessage]);
+    setInputText('');
+
+    // --- Simulation de la réponse de MindSafe ---
+    setTimeout(() => {
+      const mindSafeResponse = {
+        id: Date.now().toString() + '_res',
+        text: `Merci de partager cela. Je note votre ressenti. Continuons la discussion.`,
+        sender: 'MindSafe',
+        time: new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' }),
+        analysis: 'Réponse automatique après 1 seconde.',
+      };
+      setMessages(prevMessages => [...prevMessages, mindSafeResponse]);
+    }, 1000);
+  };
+
+  // Composant pour les options rapides (boutons sous le champ de saisie)
+  const renderQuickOptions = () => (
+    <View style={styles.quickOptionsContainer}>
+      <TouchableOpacity style={styles.quickOptionButton}>
+        <Text style={styles.quickOptionText}>Je me sens stressé</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.quickOptionButton}>
+        <Text style={styles.quickOptionText}>J'ai besoin d'aide</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.quickOptionButton}>
+        <Text style={styles.quickOptionText}>Comment...</Text>
+      </TouchableOpacity>
+      {/* Vous pouvez ajouter un défilement horizontal si plus d'options */}
+    </View>
+  );
+
+  return (
+    <SafeAreaView style={styles.fullScreen}>
+      <View style={styles.header}>
+        <Text style={styles.headerTitle}>MindSafe</Text>
+        {/* Placeholder pour les icônes de notification et profil */}
+        <View style={styles.headerIcons}>
+          <Ionicons name="notifications-outline" size={24} color="#333" style={{ marginRight: 15 }} />
+          <Image 
+            source={{ uri: 'https://images.unsplash.com/photo-1544723795-3fb6469e380f?fit=crop&w=800&q=80' }} // Remplacer par l'image de profil de l'utilisateur
+            style={styles.profileAvatar} 
+          />
+        </View>
+      </View>
+
+      <FlatList
+        data={messages}
+        renderItem={({ item }) => <MessageBubble message={item} />}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.messageList}
+        inverted // Affiche les messages du bas vers le haut
+      />
+
+      {/* Zone de saisie et options rapides */}
+      <KeyboardAvoidingView 
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
+      >
+        {renderQuickOptions()}
+        <View style={styles.inputArea}>
+          <TouchableOpacity style={styles.attachmentButton}>
+            <Ionicons name="attach" size={24} color="#888" />
+          </TouchableOpacity>
+          <TextInput
+            style={styles.textInput}
+            value={inputText}
+            onChangeText={setInputText}
+            placeholder="Écrire un message..."
+            placeholderTextColor="#888"
+            multiline={true}
+          />
+          <TouchableOpacity style={styles.voiceButton}>
+            <Ionicons name="mic-outline" size={24} color="#888" />
+          </TouchableOpacity>
+          <TouchableOpacity 
+            style={styles.sendButton} 
+            onPress={handleSendMessage}
+            disabled={inputText.trim() === ''} // Désactive si le champ est vide
+          >
+            <Ionicons name="send" size={20} color="#FFF" />
+          </TouchableOpacity>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
+  );
+}
+
+// --- Stylesheet ---
+const styles = StyleSheet.create({
+  fullScreen: {
+    flex: 1,
+    backgroundColor: '#FFF',
+  },
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 15,
+    borderBottomWidth: 1,
+    borderBottomColor: '#EEE',
+  },
+  headerTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  headerIcons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  profileAvatar: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+  },
+  messageList: {
+    paddingHorizontal: 15,
+    paddingTop: 10,
+  },
+
+  // Style des bulles
+  messageContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    marginBottom: 15,
+  },
+  mindSafeContainer: {
+    justifyContent: 'flex-start',
+    alignSelf: 'flex-start',
+    maxWidth: '85%',
+  },
+  userContainer: {
+    justifyContent: 'flex-end',
+    alignSelf: 'flex-end',
+    maxWidth: '85%',
+  },
+  mindSafeIcon: {
+    width: 30,
+    height: 30,
+    borderRadius: 15,
+    marginRight: 8,
+    backgroundColor: '#EAEAEA', // Fond pour simuler l'icône du bot
+  },
+  bubble: {
+    padding: 12,
+    borderRadius: 10,
+    maxWidth: '100%',
+  },
+  mindSafeBubble: {
+    backgroundColor: '#F0F0F0', // Bulle gris clair pour MindSafe
+    borderTopLeftRadius: 0,
+  },
+  userBubble: {
+    backgroundColor: '#00B349', // Bulle verte (Mindly) pour l'utilisateur
+    borderTopRightRadius: 0,
+  },
+  mindSafeText: {
+    fontSize: 15,
+    color: '#333',
+  },
+  userText: {
+    fontSize: 15,
+    color: '#FFF',
+  },
+  analysisText: {
+    fontSize: 10,
+    color: '#888',
+    marginTop: 5,
+    fontStyle: 'italic',
+  },
+  userTime: {
+    fontSize: 10,
+    color: '#888',
+    marginLeft: 8,
+  },
+  mindSafeTime: {
+    fontSize: 10,
+    color: '#888',
+    marginRight: 8,
+    marginLeft: 5,
+  },
+
+  // Options rapides
+  quickOptionsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-start',
+    paddingHorizontal: 15,
+    paddingVertical: 10,
+  },
+  quickOptionButton: {
+    backgroundColor: '#FFF',
+    borderColor: '#7AC4AE',
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 20,
+    marginRight: 8,
+  },
+  quickOptionText: {
+    color: '#7AC4AE',
+    fontSize: 13,
+    fontWeight: '600',
+  },
+
+  // Zone de saisie
+  inputArea: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    padding: 10,
+    borderTopWidth: 1,
+    borderTopColor: '#EEE',
+    backgroundColor: '#FFF',
+  },
+  attachmentButton: {
+    padding: 8,
+  },
+  voiceButton: {
+    padding: 8,
+  },
+  textInput: {
+    flex: 1,
+    backgroundColor: '#F0F0F0',
+    borderRadius: 25,
+    paddingHorizontal: 15,
+    paddingTop: 10,
+    paddingBottom: 10,
+    marginHorizontal: 5,
+    maxHeight: 100, // Limite la hauteur de saisie
+    fontSize: 15,
+  },
+  sendButton: {
+    backgroundColor: '#00B349', // Vert clair pour le bouton d'envoi
+    borderRadius: 25,
+    width: 45,
+    height: 45,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginLeft: 5,
+  },
+});
