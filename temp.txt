@@ -1,0 +1,801 @@
+import React, { useMemo, useState } from 'react';
+import {
+  Alert,
+  Dimensions,
+  FlatList,
+  SafeAreaView,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRouter } from 'expo-router';
+
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import { theme } from '@/constants/theme';
+import { useAuth } from '@/contexts/AuthContext';
+
+const { width } = Dimensions.get('window');
+const isTablet = width >= 768;
+
+const palette = {
+  background: theme.colors.background,
+  card: theme.colors.card,
+  textPrimary: theme.colors.textPrimary,
+  textSecondary: theme.colors.textSecondary,
+  accent: theme.colors.accent,
+  accentDark: theme.colors.accentDark,
+  accentLight: theme.colors.accentLight,
+  border: theme.colors.border,
+  shadow: theme.colors.bubbleShadow,
+};
+
+const moodOptions = [
+  { key: 'Heureux', emoji: '😊' },
+  { key: 'Bien', emoji: '🙂' },
+  { key: 'Neutre', emoji: '😐' },
+  { key: 'Triste', emoji: '😔' },
+  { key: 'Anxieux', emoji: '😰' },
+] as const;
+
+const emotionsList = ['Irritabilité', 'Sensibilité', 'Tristesse', 'Joie', 'Confiance', 'Colère'] as const;
+
+const dailyChallenges = [
+  { id: 'c1', title: '5 min de respiration', description: 'Respiration guidée pour calmer le stress', isNew: true },
+  { id: 'c2', title: '3 choses positives', description: 'Note trois gratitudes de ta journée', isNew: false },
+  { id: 'c3', title: 'Pause 10 minutes', description: 'Fais une pause sans écran et respire', isNew: false },
+];
+
+const weeklyProgress = [
+  { day: 'L', done: true },
+  { day: 'M', done: true },
+  { day: 'M', done: false },
+  { day: 'J', done: true },
+  { day: 'V', done: false },
+  { day: 'S', done: false },
+  { day: 'D', done: false },
+];
+
+const exerciseLibrary: Record<string, { id: string; title: string; duration: string; icon: string }[]> = {
+  Tristesse: [
+    { id: 'e1', title: 'Méditation douce', duration: '6 min', icon: 'sparkles' },
+    { id: 'e2', title: 'Respiration 4-7-8', duration: '4 min', icon: 'wind' },
+  ],
+  Irritabilité: [
+    { id: 'e3', title: 'Relâchement musculaire', duration: '5 min', icon: 'figure.cooldown' },
+    { id: 'e4', title: 'Balayage corporel', duration: '7 min', icon: 'waveform.path.ecg' },
+  ],
+  Joie: [{ id: 'e5', title: 'Journal de gratitude', duration: '5 min', icon: 'book.fill' }],
+  Confiance: [{ id: 'e6', title: 'Affirmations positives', duration: '4 min', icon: 'quote.bubble.fill' }],
+  Colère: [{ id: 'e7', title: 'Exercice d’ancrage', duration: '6 min', icon: 'leaf.fill' }],
+  Sensibilité: [{ id: 'e8', title: 'Respiration cohérente', duration: '5 min', icon: 'lungs.fill' }],
+};
+
+const recommendedActivities = [
+  {
+    id: 'r1',
+    title: 'Respiration 4-7-8',
+    description: 'Apaise le stress en 3 minutes',
+    tag: 'Rapide',
+    icon: 'wind',
+  },
+  {
+    id: 'r2',
+    title: 'Méditation douce',
+    description: 'Retrouve ton calme',
+    tag: 'Focus',
+    icon: 'sparkles',
+  },
+  {
+    id: 'r3',
+    title: 'Marche mindful',
+    description: 'Ancrage et mouvement',
+    tag: 'Énergie',
+    icon: 'figure.walk',
+  },
+];
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const [selectedMood, setSelectedMood] = useState<string>('Bien');
+  const [selectedEmotions, setSelectedEmotions] = useState<string[]>([]);
+  const { user } = useAuth();
+  const firstName = user?.fullName?.split(' ')[0] || 'Invite';
+
+  const exercises = useMemo(() => {
+    const items: { id: string; title: string; duration: string; icon: string }[] = [];
+    selectedEmotions.forEach((emotion) => {
+      const list = exerciseLibrary[emotion];
+      if (list) {
+        list.forEach((ex) => {
+          if (!items.find((i) => i.id === ex.id)) {
+            items.push(ex);
+          }
+        });
+      }
+    });
+    return items.slice(0, 4);
+  }, [selectedEmotions]);
+
+  const toggleEmotion = (emotion: string) => {
+    setSelectedEmotions((prev) =>
+      prev.includes(emotion) ? prev.filter((e) => e !== emotion) : [...prev, emotion]
+    );
+  };
+
+  const handleSaveMood = async () => {
+    // TODO: brancher Firestore : users/{userId}/moodEntries/{date}
+    Alert.alert('Suivi enregistré', `Ton ressenti (${selectedMood}) est sauvegardé (mode démo).`);
+  };
+
+  const navigateTo = (path: string) => {
+    // Cast to appease Expo Router types for static string routes.
+    router.push(path as any);
+  };
+
+  return (
+    <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        {/* Header */}
+        <View style={styles.headerRow}>
+          <View>
+            <Text style={styles.greeting}>Bonjour, Sarah</Text>
+            <Text style={styles.subtitle}>Aujourd’hui, prends soin de toi</Text>
+            <Text style={styles.dateText}>Mardi 18 mars</Text>
+          </View>
+          <TouchableOpacity style={styles.historyButton} onPress={() => navigateTo('/mood-history')}>
+            <IconSymbol name="bell.fill" size={18} color={palette.accent} />
+            <View style={styles.dot} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Mood Card */}
+        <View style={styles.card}>
+          <Text style={styles.sectionTitle}>Comment te sens-tu aujourd’hui ?</Text>
+          <Text style={styles.moodPrompt}>Comment vous sentez-vous ?</Text>
+          <View style={styles.moodRow}>
+            {moodOptions.map((mood) => {
+              const active = selectedMood === mood.key;
+              return (
+                <TouchableOpacity
+                  key={mood.key}
+                  style={[styles.moodItem, active && styles.moodItemActive]}
+                  onPress={() => setSelectedMood(mood.key)}
+                  activeOpacity={0.85}
+                >
+                  <Text style={[styles.moodEmoji, active && styles.moodEmojiActive]}>{mood.emoji}</Text>
+                  <Text style={[styles.moodLabel, active && styles.moodLabelActive]}>{mood.key}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <Text style={styles.label}>Émotions du moment</Text>
+          <View style={styles.emotionsGrid}>
+            {emotionsList.map((emotion) => {
+              const active = selectedEmotions.includes(emotion);
+              return (
+                <TouchableOpacity
+                  key={emotion}
+                  style={[styles.emotionPill, active && styles.emotionPillActive]}
+                  onPress={() => toggleEmotion(emotion)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={[styles.emotionText, active && styles.emotionTextActive]}>{emotion}</Text>
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+
+          <TouchableOpacity style={styles.primaryButton} onPress={handleSaveMood} activeOpacity={0.85}>
+            <Text style={styles.primaryButtonText}>Enregistrer mon ressenti</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Mini Dashboard */}
+        <View style={[styles.card, styles.rowWrap]}>
+          <View style={styles.miniStat}>
+            <IconSymbol name="heart.fill" size={18} color={palette.accent} />
+            <Text style={styles.statValue}>{selectedMood}</Text>
+            <Text style={styles.statLabel}>Humeur</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.miniStat}>
+            <IconSymbol name="flame.fill" size={18} color={palette.accent} />
+            <Text style={styles.statValue}>{weeklyProgress.filter((d) => d.done).length}/7</Text>
+            <Text style={styles.statLabel}>Défis semaine</Text>
+          </View>
+          <View style={styles.divider} />
+          <View style={styles.miniStat}>
+            <IconSymbol name="chart.bar.fill" size={18} color={palette.accent} />
+            <Text style={styles.statValue}>{selectedEmotions.length}</Text>
+            <Text style={styles.statLabel}>Émotions</Text>
+          </View>
+        </View>
+
+        {/* Daily challenges */}
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Défis du jour</Text>
+            <TouchableOpacity onPress={() => navigateTo('/challenge-details')}>
+              <Text style={styles.link}>Voir plus</Text>
+            </TouchableOpacity>
+          </View>
+
+          {dailyChallenges.map((challenge) => (
+            <TouchableOpacity
+              key={challenge.id}
+              style={styles.challengeRow}
+              activeOpacity={0.8}
+              onPress={() => navigateTo('/challenge-details')}
+            >
+              <View style={styles.challengeIcon}>
+                <IconSymbol name="sparkles" size={18} color={palette.accent} />
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.challengeTitle}>{challenge.title}</Text>
+                <Text style={styles.challengeDescription}>{challenge.description}</Text>
+              </View>
+              {challenge.isNew && <Text style={styles.badge}>Nouveau</Text>}
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* Weekly progress */}
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Tes défis réalisés cette semaine</Text>
+            <Text style={styles.sectionValue}>
+              {weeklyProgress.filter((d) => d.done).length}/7
+            </Text>
+          </View>
+          <View style={styles.weekRow}>
+            {weeklyProgress.map((day) => (
+              <View key={day.day} style={styles.dayItem}>
+                <View style={[styles.dayCircle, day.done && styles.dayCircleDone]} />
+                <Text style={styles.dayLabel}>{day.day}</Text>
+              </View>
+            ))}
+          </View>
+        </View>
+
+        {/* Dashboard preview with mock chart */}
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Aperçu du tableau de bord</Text>
+            <TouchableOpacity onPress={() => navigateTo('/dashboard')}>
+              <Text style={styles.link}>Voir plus →</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.chartPlaceholder}>
+            <View style={styles.chartBars}>
+              {[60, 80, 50, 70, 90, 65, 75].map((val, idx) => (
+                <View key={idx} style={styles.chartBar}>
+                  <View style={[styles.chartFill, { height: `${val}%` }]} />
+                </View>
+              ))}
+            </View>
+            <Text style={styles.chartLegend}>Humeur · 7 derniers jours</Text>
+          </View>
+        </View>
+
+        {/* Recommended activities */}
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Activités recommandées</Text>
+            <TouchableOpacity onPress={() => navigateTo('/(tabs)/exercises')}>
+              <Text style={styles.link}>Tout voir</Text>
+            </TouchableOpacity>
+          </View>
+          <FlatList
+            data={recommendedActivities}
+            keyExtractor={(item) => item.id}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View style={{ width: 12 }} />}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.activityCard}
+                activeOpacity={0.85}
+                onPress={() => navigateTo('/(tabs)/exercises')}
+              >
+                <View style={styles.activityIcon}>
+                  <IconSymbol name={item.icon as any} size={20} color={palette.accent} />
+                </View>
+                <Text style={styles.activityTitle}>{item.title}</Text>
+                <Text style={styles.activityDescription}>{item.description}</Text>
+                <Text style={styles.activityTag}>{item.tag}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+
+        {/* Emotion-based exercises */}
+        <View style={styles.card}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Exercices adaptés à tes émotions</Text>
+            <TouchableOpacity onPress={() => navigateTo('/exercise')}>
+              <Text style={styles.link}>Explorer</Text>
+            </TouchableOpacity>
+          </View>
+
+          {exercises.length === 0 ? (
+            <Text style={styles.emptyText}>Choisis des émotions pour voir des exercices.</Text>
+          ) : (
+            exercises.map((exercise) => (
+              <TouchableOpacity
+                key={exercise.id}
+                style={styles.exerciseRow}
+                activeOpacity={0.85}
+                onPress={() => navigateTo('/exercise')}
+              >
+                <View style={styles.exerciseIcon}>
+                  <IconSymbol name={exercise.icon as any} size={18} color={palette.accent} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.exerciseTitle}>{exercise.title}</Text>
+                  <Text style={styles.exerciseDuration}>{exercise.duration}</Text>
+                </View>
+                <Text style={styles.exerciseCta}>Commencer</Text>
+              </TouchableOpacity>
+            ))
+          )}
+        </View>
+
+        {/* CTA community / IA */}
+        <View style={[styles.card, styles.communityCard]}>
+          <Text style={styles.sectionTitle}>Besoin d’aide ?</Text>
+          <Text style={styles.sectionDescription}>Rejoins la communauté ou discute avec l’IA.</Text>
+          <View style={styles.communityButtons}>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => navigateTo('/(tabs)/discussions')}>
+              <IconSymbol name="person.2.fill" size={16} color={palette.accent} />
+              <Text style={styles.secondaryText}>Communauté</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.secondaryButton} onPress={() => navigateTo('/chat/ai')}>
+              <IconSymbol name="sparkles" size={16} color={palette.accent} />
+              <Text style={styles.secondaryText}>IA MindSafe</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+
+        {/* Inspiration */}
+        <LinearGradient
+          colors={[palette.accentLight, '#E8F5E9']}
+          start={[0, 0]}
+          end={[1, 1]}
+          style={[styles.card, styles.inspirationCard]}
+        >
+          <Text style={styles.sectionTitle}>Inspiration du jour</Text>
+          <Text style={styles.inspirationQuote}>
+            “Prends une grande inspiration, laisse partir ce que tu ne contrôles pas.”
+          </Text>
+          <Text style={styles.inspirationAuthor}>— Mindly</Text>
+        </LinearGradient>
+
+        <View style={{ height: 24 }} />
+      </ScrollView>
+    </SafeAreaView>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: palette.background,
+  },
+  content: {
+    padding: 16,
+    paddingBottom: 32,
+  },
+  headerRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  greeting: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  subtitle: {
+    fontSize: 14,
+    color: palette.textSecondary,
+    marginTop: 4,
+  },
+  dateText: {
+    fontSize: 12,
+    color: palette.textSecondary,
+    marginTop: 2,
+  },
+  historyButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 12,
+    backgroundColor: palette.card,
+    borderWidth: 1,
+    borderColor: palette.border,
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    elevation: 1,
+  },
+  historyText: {
+    color: palette.textPrimary,
+    fontWeight: '600',
+    fontSize: 13,
+  },
+  dot: {
+    position: 'absolute',
+    right: 6,
+    top: 6,
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: '#F87171',
+  },
+  card: {
+    backgroundColor: palette.card,
+    borderRadius: 18,
+    padding: 16,
+    marginTop: 14,
+    borderWidth: 1,
+    borderColor: palette.border,
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 2,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  sectionTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  sectionValue: {
+    fontSize: 13,
+    color: palette.textSecondary,
+    fontWeight: '600',
+  },
+  link: {
+    fontSize: 14,
+    color: palette.accent,
+    fontWeight: '700',
+  },
+  label: {
+    marginTop: 8,
+    marginBottom: 8,
+    fontSize: 14,
+    fontWeight: '600',
+    color: palette.textPrimary,
+  },
+  moodPrompt: {
+    textAlign: 'center',
+    marginTop: 6,
+    marginBottom: 10,
+    fontSize: 15,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  moodRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 8,
+  },
+  moodItem: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 10,
+    borderRadius: 12,
+  },
+  moodItemActive: {
+    backgroundColor: palette.accentLight,
+  },
+  moodEmoji: {
+    fontSize: 30,
+    marginBottom: 6,
+  },
+  moodEmojiActive: {
+    opacity: 0.95,
+  },
+  moodLabel: {
+    fontSize: 13,
+    color: palette.textSecondary,
+    fontWeight: '600',
+  },
+  moodLabelActive: {
+    color: palette.textPrimary,
+  },
+  emotionsGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  emotionPill: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 14,
+    backgroundColor: '#F1F3F8',
+    borderWidth: 1,
+    borderColor: palette.border,
+  },
+  emotionPillActive: {
+    backgroundColor: palette.accent,
+    borderColor: palette.accentDark,
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.12,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  emotionText: {
+    fontSize: 13,
+    color: palette.textPrimary,
+    fontWeight: '600',
+  },
+  emotionTextActive: {
+    color: '#fff',
+  },
+  primaryButton: {
+    marginTop: 14,
+    backgroundColor: palette.accent,
+    paddingVertical: 14,
+    borderRadius: 12,
+    alignItems: 'center',
+    shadowColor: palette.accentDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 3,
+  },
+  primaryButtonText: {
+    color: '#fff',
+    fontWeight: '700',
+    fontSize: 15,
+  },
+  rowWrap: {
+    flexDirection: isTablet ? 'row' : 'column',
+    alignItems: isTablet ? 'center' : 'flex-start',
+    gap: isTablet ? 12 : 8,
+  },
+  miniStat: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  statValue: {
+    fontSize: 18,
+    fontWeight: '800',
+    color: palette.textPrimary,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: palette.textSecondary,
+  },
+  divider: {
+    width: isTablet ? 1 : '100%',
+    height: isTablet ? 40 : 1,
+    backgroundColor: palette.border,
+  },
+  challengeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
+  },
+  challengeIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: palette.accentLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  challengeTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  challengeDescription: {
+    fontSize: 12,
+    color: palette.textSecondary,
+    marginTop: 2,
+  },
+  badge: {
+    backgroundColor: palette.accent,
+    color: '#fff',
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 10,
+    fontSize: 11,
+    fontWeight: '700',
+  },
+  weekRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginTop: 6,
+  },
+  dayItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  dayCircle: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 2,
+    borderColor: palette.accent,
+    backgroundColor: '#fff',
+    marginBottom: 6,
+  },
+  dayCircleDone: {
+    backgroundColor: palette.accent,
+  },
+  dayLabel: {
+    fontSize: 12,
+    color: palette.textSecondary,
+    fontWeight: '600',
+  },
+  emptyText: {
+    fontSize: 13,
+    color: palette.textSecondary,
+  },
+  exerciseRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: palette.border,
+  },
+  exerciseIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: palette.accentLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  exerciseTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: palette.textPrimary,
+    marginBottom: 2,
+  },
+  exerciseDuration: {
+    fontSize: 12,
+    color: palette.textSecondary,
+  },
+  exerciseCta: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: palette.accent,
+  },
+  activityCard: {
+    width: 220,
+    backgroundColor: '#fff',
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: palette.border,
+    shadowColor: palette.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  activityIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: 10,
+    backgroundColor: palette.accentLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  activityTitle: {
+    fontSize: 15,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  activityDescription: {
+    fontSize: 12,
+    color: palette.textSecondary,
+    marginVertical: 6,
+  },
+  activityTag: {
+    fontSize: 12,
+    color: palette.accent,
+    fontWeight: '700',
+  },
+  communityCard: {
+    alignItems: 'flex-start',
+    gap: 8,
+  },
+  sectionDescription: {
+    fontSize: 13,
+    color: palette.textSecondary,
+  },
+  communityButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  secondaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: palette.border,
+    backgroundColor: '#fff',
+  },
+  secondaryText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: palette.textPrimary,
+  },
+  inspirationCard: {
+    marginTop: 14,
+    borderWidth: 0,
+  },
+  inspirationQuote: {
+    fontSize: 16,
+    color: palette.textPrimary,
+    marginTop: 8,
+    lineHeight: 22,
+  },
+  inspirationAuthor: {
+    fontSize: 13,
+    color: palette.textSecondary,
+    marginTop: 6,
+    fontWeight: '700',
+  },
+  chartPlaceholder: {
+    marginTop: 8,
+    borderRadius: 14,
+    borderWidth: 1,
+    borderColor: palette.border,
+    padding: 12,
+    backgroundColor: '#fff',
+  },
+  chartBars: {
+    flexDirection: 'row',
+    alignItems: 'flex-end',
+    gap: 8,
+    height: 100,
+  },
+  chartBar: {
+    flex: 1,
+    backgroundColor: '#E0F2F1',
+    borderRadius: 8,
+    overflow: 'hidden',
+  },
+  chartFill: {
+    width: '100%',
+    backgroundColor: palette.accent,
+    borderRadius: 8,
+  },
+  chartLegend: {
+    marginTop: 10,
+    fontSize: 12,
+    color: palette.textSecondary,
+    textAlign: 'center',
+  },
+});
+
